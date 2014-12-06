@@ -18,4 +18,28 @@ Recently, during a hard-drive purge, his code was rediscovered.
 
 In *Pac to the Future*, we will travel back in time to code review the early experiments of a web alchemist to answer these questions and many others.*
 
-\* Not that many.
+*\* Not that many.*
+
+---
+
+## Play now!
+
+[Launch player](http://furf.github.io/pac-to-the-future/play.html)*
+
+ Key | Action
+:---:|:-----------------------
+  Q  | Add credit
+  1  | Start one-player game
+  2  | Start two-player game
+  I  | Up
+  J  | Left
+  K  | Down
+  L  | Right
+  P  | Pause
+ esc | Quit
+
+---
+
+*\* Requires Netscape Navigator 4*
+
+![Netscape Now!](https://www.accessfcu.org/onlineserv/HB/images/netscape.gif)
