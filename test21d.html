@@ -1,0 +1,1927 @@
+<HTML>
+<HEAD>
+<TITLE>Pac-Man</TITLE>
+
+<SCRIPT LANGUAGE="javascript">
+<!--
+var LEFT  = 0x01;
+var RIGHT = 0x02;
+var UP    = 0x04;
+var DOWN  = 0x08;
+
+var NUM_GHOSTS = 4;
+
+var NORMAL = 0;
+var BLUE   = 1;
+var WHITE  = 2;
+var EYES   = 3;
+
+var RUN    = -1;
+var PURSUE = 1;
+
+var HALF_SPEED = 1;
+var FULL_SPEED = 2;
+var DOUBLE_SPEED = 4;
+
+var LIVES = 3;
+var LEVEL = 0;
+var BONUS = 10000;
+var HIGH_SCORE_COOKIE = "pacManHighScore";
+var DEATH  = 4;
+var FRUIT_COUNTER = 100;
+var GAME_SPEED = 10;
+
+var credits = 0;
+var gameState = -1;
+var up = 0;
+var gamePaused = false;
+var animPhase = 0;
+var blueCount = 0;
+var whiteCount = 0;
+var savedHighScore = 0;
+
+var WALL         = 0;
+var EMPTY        = 1;
+var PELLET       = 2;
+var POWER_PELLET = 3;
+var TUNNEL       = 4;
+
+pacManBoardData = new Array();
+	pacManBoardData[0]  = "00000000000000";
+	pacManBoardData[1]  = "02222222222220";
+	pacManBoardData[2]  = "02000020000020";
+	pacManBoardData[3]  = "03000020000020";
+	pacManBoardData[4]  = "02000020000020";
+	pacManBoardData[5]  = "02222222222222";
+	pacManBoardData[6]  = "02000020020000";
+	pacManBoardData[7]  = "02000020020000";
+	pacManBoardData[8]  = "02222220022220";
+	pacManBoardData[9]  = "00000020000010";
+	pacManBoardData[10] = "00000020000010";
+	pacManBoardData[11] = "00000020011111";
+	pacManBoardData[12] = "00000020010000";
+	pacManBoardData[13] = "00000020010111";
+	pacManBoardData[14] = "44444421110111";
+	pacManBoardData[15] = "00000020010111";
+	pacManBoardData[16] = "00000020010000";
+	pacManBoardData[17] = "00000020011111";
+	pacManBoardData[18] = "00000020010000";
+	pacManBoardData[19] = "00000020010000";
+	pacManBoardData[20] = "02222222222220";
+	pacManBoardData[21] = "02000020000020";
+	pacManBoardData[22] = "02000020000020";
+	pacManBoardData[23] = "03220022222221";
+	pacManBoardData[24] = "00020020020000";
+	pacManBoardData[25] = "00020020020000";
+	pacManBoardData[26] = "02222220022220";
+	pacManBoardData[27] = "02000000000020";
+	pacManBoardData[28] = "02000000000020";
+	pacManBoardData[29] = "02222222222222";
+	pacManBoardData[30] = "00000000000000";
+
+hanglyManBoardData = new Array();
+	hanglyManBoardData[0]  = "00000000000000";
+	hanglyManBoardData[1]  = "02222222222222";
+	hanglyManBoardData[2]  = "02000020000020";
+	hanglyManBoardData[3]  = "03000020000020";
+	hanglyManBoardData[4]  = "02000020000020";
+	hanglyManBoardData[5]  = "42222222222220";
+	hanglyManBoardData[6]  = "02000020020000";
+	hanglyManBoardData[7]  = "02000020020000";
+	hanglyManBoardData[8]  = "02222220022220";
+	hanglyManBoardData[9]  = "00011120000010";
+	hanglyManBoardData[10] = "00011120000010";
+	hanglyManBoardData[11] = "00010020011111";
+	hanglyManBoardData[12] = "00010020010000";
+	hanglyManBoardData[13] = "00011121110000";
+	hanglyManBoardData[14] = "44411120010000";
+	hanglyManBoardData[15] = "00011120010000";
+	hanglyManBoardData[16] = "00010021110000";
+	hanglyManBoardData[17] = "00010020011111";
+	hanglyManBoardData[18] = "00011120000010";
+	hanglyManBoardData[19] = "00011120000010";
+	hanglyManBoardData[20] = "02222222222220";
+	hanglyManBoardData[21] = "02000020000020";
+	hanglyManBoardData[22] = "02000020000020";
+	hanglyManBoardData[23] = "03220022222221";
+	hanglyManBoardData[24] = "00020020020000";
+	hanglyManBoardData[25] = "00020020020000";
+	hanglyManBoardData[26] = "42222220022220";
+	hanglyManBoardData[27] = "02000010010020";
+	hanglyManBoardData[28] = "02000010010020";
+	hanglyManBoardData[29] = "02222222222222";
+	hanglyManBoardData[30] = "00000000000000";
+
+puckManBoardData = new Array();
+	puckManBoardData[0]  = "00000000000000";
+	puckManBoardData[1]  = "02222222222220";
+	puckManBoardData[2]  = "02000020000020";
+	puckManBoardData[3]  = "03000020000020";
+	puckManBoardData[4]  = "41000020000022";
+	puckManBoardData[5]  = "02222222222220";
+	puckManBoardData[6]  = "02000020020000";
+	puckManBoardData[7]  = "02000020020000";
+	puckManBoardData[8]  = "02222220022220";
+	puckManBoardData[9]  = "00100020000010";
+	puckManBoardData[10] = "00100020000010";
+	puckManBoardData[11] = "00100020011111";
+	puckManBoardData[12] = "00100021110000";
+	puckManBoardData[13] = "00100020010000";
+	puckManBoardData[14] = "42111120010000";
+	puckManBoardData[15] = "00100020010000";
+	puckManBoardData[16] = "00100021110000";
+	puckManBoardData[17] = "00100020011111";
+	puckManBoardData[18] = "00100020010000";
+	puckManBoardData[19] = "00100020010000";
+	puckManBoardData[20] = "02222222222220";
+	puckManBoardData[21] = "02000020000020";
+	puckManBoardData[22] = "02000020000020";
+	puckManBoardData[23] = "03220022222221";
+	puckManBoardData[24] = "00020020020000";
+	puckManBoardData[25] = "00020020020000";
+	puckManBoardData[26] = "42222120022220";
+	puckManBoardData[27] = "02000200000020";
+	puckManBoardData[28] = "02000100000022";
+	puckManBoardData[29] = "02222222222220";
+	puckManBoardData[30] = "00000000000000";
+
+function mirrorMap(map) {
+	pam = new Array();
+
+	for (var y = 0; y < map.length; y++) {
+		map[y] = map[y].split("");
+		pam[y] = new Array();
+
+		for (var x = 0; x < map[y].length; x++) {
+			pam[y][x] = map[y][x];
+		}
+		pam[y].reverse();
+		map[y] = map[y].concat(pam[y]);
+	}
+	return map;
+}
+function expandV(map, magnifier) {
+	tallMap = new Array();
+
+	for (var y = 0; y < map.length; y++) {
+		tallMap[y * magnifier] = map[y];
+
+		for (var yy = 1; yy < magnifier; yy++) {
+			tallMap[y * magnifier + yy] = new Array();
+
+			for (var x = 0; x < map[y].length; x++) {
+
+				if (map[y][x] > 3 && map[y + 1][x] > 3) {
+					tallMap[y * magnifier + yy][x] = map[y][x];
+				} else {
+					if (map[y][x] > 0 && map[y + 1][x] > 0) {
+						if (map[y + 1][x] > 3) {
+							tallMap[y * magnifier + yy][x] = map[y + 1][x];
+						} else {
+							tallMap[y * magnifier + yy][x] = 1;
+						}
+					} else {
+						tallMap[y * magnifier + yy][x] = 0;
+					}
+				}
+			}
+		}
+	}
+	for (var yy = 1; yy < magnifier; yy++) {
+		tallMap.pop();
+	}
+	return tallMap;
+}
+
+function expandH(map, magnifier) {
+	fatMap = new Array();
+
+	for (var y = 0; y < map.length; y++) {
+		fatMap[y] = new Array();
+
+		for (var x = 0; x < map[y].length; x++) {
+			fatMap[y][x * magnifier] = map[y][x];
+
+			if (map[y][x] > 3 && map[y][x + 1] > 0) {
+				for (var xx = 1; xx < magnifier; xx++) {
+					fatMap[y][x * magnifier + xx] = map[y][x];
+				}
+			} else {
+				if (map[y][x] > 0 && map[y][x + 1] > 0) {
+					if (map[y][x + 1] > 3) {
+						for (var xx = 1; xx < magnifier; xx++) {
+							fatMap[y][x * magnifier + xx] = map[y][x + 1];
+						}
+					} else {
+						for (var xx = 1; xx < magnifier; xx++) {
+							fatMap[y][x * magnifier + xx] = 1;
+						}
+					}
+				} else {
+					for (var xx = 1; xx < magnifier; xx++) {
+						fatMap[y][x * magnifier + xx] = 0;
+					}
+				}
+			}
+		}
+		for (var xx = 1; xx < magnifier; xx++) {
+			fatMap[y].pop();
+		}
+	}
+	return fatMap;
+}
+
+function hexMap(map) {
+	hexMap = new Array();
+
+	for (var y = 0; y < map.length; y++) {
+		hexMap[y] = new Array();
+
+		for (var x = 0; x < map[y].length; x++) {
+			hexMap[y][x] = 0;
+
+			if (map[y][x] != 0) {
+				if ((x == 0 && map[y][map[y].length - 1] > 0) || map[y][x - 1] > 0) {
+					hexMap[y][x] |= LEFT;
+				}
+				if ((x == map[y].length - 1 && map[y][0] > 0) || map[y][x + 1] > 0) {
+					hexMap[y][x] |= RIGHT;
+				}
+				if ((y == 0 && map[map.length - 1][x] > 0) || map[y - 1][x] > 0) {
+					hexMap[y][x] |= UP;
+				}
+				if ((y == map.length - 1 && map[0][x] > 0) || map[y + 1][x] > 0) {
+					hexMap[y][x] |= DOWN;
+				}
+			}
+		}
+	}
+	return hexMap;
+}
+
+var GAME_MAP = expandV(expandH(mirrorMap(pacManBoardData),4),4);
+var INTELLIGENCE_MAP = hexMap(GAME_MAP);
+var BOARD_HEIGHT = GAME_MAP.length;
+var BOARD_WIDTH = GAME_MAP[0].length;
+var X_DRAW_OFFSET = -4;
+var Y_DRAW_OFFSET = 110;
+var DISTANCE = 2;
+
+function print(layerName, textString, hexVal) {
+	textArray = textString.split("");
+
+	for (i = 0; i <= textArray.length - 1; i++) {
+		switch (textArray[i]) {
+			case " " :
+				myChar = "space";
+				break;
+			case "." :
+				myChar = "period";
+				break;
+			case "'" :
+				myChar = "quotes";
+				break;
+			case "-" :
+				myChar = "hyphen";
+				break;
+			case "/" :
+				myChar = "slash";
+				break;
+			case "!" :
+				myChar = "bang";
+				break;
+			case "@" :
+				myChar = "copy";
+				break;
+			case "#" :
+				myChar = "pts0";
+				break;
+			case "$" :
+				myChar = "pts1";
+				break;
+			case "%" :
+				myChar = "pts2";
+				break;
+			default :
+				myChar = textArray[i];
+		}
+
+ 		layerName.document.write("<IMG SRC='Images/Alphabet/" + myChar + ".gif' WIDTH='8' HEIGHT='8' BORDER='0'>");
+	}
+}
+
+function sleep(msec) {
+	t1 = new Date();
+	t2 = new Date();
+
+	while (t2.getTime() < t1.getTime() + msec) {
+		t2 = new Date();
+	}
+}
+
+// -->
+</SCRIPT>
+</HEAD>
+
+
+<BODY BGCOLOR="#000000" ONLOAD="this.focus(); gameInit();">
+<LAYER NAME="marquis" LEFT="0" TOP="0" CLIP="0,0,224,82"><IMG SRC="Images/pacman.jpg" ALT="" WIDTH="224" HEIGHT="82"></LAYER>
+<LAYER NAME="joystick" LEFT="0" TOP="380" CLIP="0,0,224,90"><IMG SRC="Images/joystick.gif" ALT="" WIDTH="224" HEIGHT="90"></LAYER>
+<!-- SCORE LAYERS -->
+<LAYER NAME="oneUp" LEFT="24"  TOP="90" BGCOLOR="#DEDEDE" VISIBILITY="hide"><SCRIPT LANGUAGE="javascript">print(this,"1up");</SCRIPT></LAYER>
+<LAYER NAME="twoUp" LEFT="176" TOP="90" BGCOLOR="#DEDEDE" VISIBILITY="hide"><SCRIPT LANGUAGE="javascript">print(this,"2up");</SCRIPT></LAYER>
+<LAYER NAME="high"  LEFT="72"  TOP="90" BGCOLOR="#DEDEDE" VISIBILITY="hide"><SCRIPT LANGUAGE="javascript">print(this,"high score");</SCRIPT></LAYER>
+<LAYER NAME="oneUpScore" LEFT="8" TOP="99" CLIP="0,0,48,8" VISIBILITY="hide">
+	<LAYER LEFT="40" TOP="0"    BGCOLOR="#DEDEDE"><IMG SRC="Images/Alphabet/numbers.gif" WIDTH="8" HEIGHT="110"></LAYER>
+	<LAYER LEFT="32" TOP="0"    BGCOLOR="#DEDEDE"><IMG SRC="Images/Alphabet/numbers.gif" WIDTH="8" HEIGHT="110"></LAYER>
+	<LAYER LEFT="24" TOP="-100" BGCOLOR="#DEDEDE"><IMG SRC="Images/Alphabet/numbers.gif" WIDTH="8" HEIGHT="110"></LAYER>
+	<LAYER LEFT="16" TOP="-100" BGCOLOR="#DEDEDE"><IMG SRC="Images/Alphabet/numbers.gif" WIDTH="8" HEIGHT="110"></LAYER>
+	<LAYER LEFT="8"  TOP="-100" BGCOLOR="#DEDEDE"><IMG SRC="Images/Alphabet/numbers.gif" WIDTH="8" HEIGHT="110"></LAYER>
+	<LAYER LEFT="0"  TOP="-100" BGCOLOR="#DEDEDE"><IMG SRC="Images/Alphabet/numbers.gif" WIDTH="8" HEIGHT="110"></LAYER>
+</LAYER>
+<LAYER NAME="twoUpScore" LEFT="160" TOP="99" CLIP="0,0,48,8" VISIBILITY="hide">
+	<LAYER LEFT="40" TOP="-100" BGCOLOR="#DEDEDE"><IMG SRC="Images/Alphabet/numbers.gif" WIDTH="8" HEIGHT="110"></LAYER>
+	<LAYER LEFT="32" TOP="-100" BGCOLOR="#DEDEDE"><IMG SRC="Images/Alphabet/numbers.gif" WIDTH="8" HEIGHT="110"></LAYER>
+	<LAYER LEFT="24" TOP="-100" BGCOLOR="#DEDEDE"><IMG SRC="Images/Alphabet/numbers.gif" WIDTH="8" HEIGHT="110"></LAYER>
+	<LAYER LEFT="16" TOP="-100" BGCOLOR="#DEDEDE"><IMG SRC="Images/Alphabet/numbers.gif" WIDTH="8" HEIGHT="110"></LAYER>
+	<LAYER LEFT="8"  TOP="-100" BGCOLOR="#DEDEDE"><IMG SRC="Images/Alphabet/numbers.gif" WIDTH="8" HEIGHT="110"></LAYER>
+	<LAYER LEFT="0"  TOP="-100" BGCOLOR="#DEDEDE"><IMG SRC="Images/Alphabet/numbers.gif" WIDTH="8" HEIGHT="110"></LAYER>
+</LAYER>
+<LAYER NAME="highScore" LEFT="88" TOP="99" CLIP="0,0,48,8" VISIBILITY="hide">
+	<LAYER LEFT="40" TOP="-100" BGCOLOR="#DEDEDE"><IMG SRC="Images/Alphabet/numbers.gif" WIDTH="8" HEIGHT="110"></LAYER>
+	<LAYER LEFT="32" TOP="-100" BGCOLOR="#DEDEDE"><IMG SRC="Images/Alphabet/numbers.gif" WIDTH="8" HEIGHT="110"></LAYER>
+	<LAYER LEFT="24" TOP="-100" BGCOLOR="#DEDEDE"><IMG SRC="Images/Alphabet/numbers.gif" WIDTH="8" HEIGHT="110"></LAYER>
+	<LAYER LEFT="16" TOP="-100" BGCOLOR="#DEDEDE"><IMG SRC="Images/Alphabet/numbers.gif" WIDTH="8" HEIGHT="110"></LAYER>
+	<LAYER LEFT="8"  TOP="-100" BGCOLOR="#DEDEDE"><IMG SRC="Images/Alphabet/numbers.gif" WIDTH="8" HEIGHT="110"></LAYER>
+	<LAYER LEFT="0"  TOP="-100" BGCOLOR="#DEDEDE"><IMG SRC="Images/Alphabet/numbers.gif" WIDTH="8" HEIGHT="110"></LAYER>
+</LAYER>
+<!-- OPENING CREDITS LAYERS -->
+<LAYER NAME="oc00" LEFT="56"  TOP="130" BGCOLOR="#DEDEDE" VISIBILITY="hide"><SCRIPT LANGUAGE="javascript">print(this,"character / nickname");</SCRIPT></LAYER>
+<LAYER NAME="oc01" LEFT="32"  TOP="141" BGCOLOR="#000000" VISIBILITY="hide"><IMG SRC="Images/Ghosts/Blinky/blinky_r0.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="oc02" LEFT="56"  TOP="146" BGCOLOR="#FF0000" VISIBILITY="hide"><SCRIPT LANGUAGE="javascript">print(this,"-shadow");</SCRIPT></LAYER>
+<LAYER NAME="oc03" LEFT="144" TOP="146" BGCOLOR="#FF0000" VISIBILITY="hide"><SCRIPT LANGUAGE="javascript">print(this,"'blinky'");</SCRIPT></LAYER>
+<LAYER NAME="oc04" LEFT="32"  TOP="165" BGCOLOR="#000000" VISIBILITY="hide"><IMG SRC="Images/Ghosts/Pinky/pinky_r0.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="oc05" LEFT="56"  TOP="170" BGCOLOR="#FFB8DE" VISIBILITY="hide"><SCRIPT LANGUAGE="javascript">print(this,"-speedy");</SCRIPT></LAYER>
+<LAYER NAME="oc06" LEFT="144" TOP="170" BGCOLOR="#FFB8DE" VISIBILITY="hide"><SCRIPT LANGUAGE="javascript">print(this,"'pinky'");</SCRIPT></LAYER>
+<LAYER NAME="oc07" LEFT="32"  TOP="189" BGCOLOR="#000000" VISIBILITY="hide"><IMG SRC="Images/Ghosts/Inky/inky_r0.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="oc08" LEFT="56"  TOP="194" BGCOLOR="#00FFDE" VISIBILITY="hide"><SCRIPT LANGUAGE="javascript">print(this,"-bashful");</SCRIPT></LAYER>
+<LAYER NAME="oc09" LEFT="144" TOP="194" BGCOLOR="#00FFDE" VISIBILITY="hide"><SCRIPT LANGUAGE="javascript">print(this,"'inky'"); </SCRIPT></LAYER>
+<LAYER NAME="oc10" LEFT="32"  TOP="213" BGCOLOR="#000000" VISIBILITY="hide"><IMG SRC="Images/Ghosts/Clyde/clyde_r0.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="oc11" LEFT="56"  TOP="218" BGCOLOR="#FFB847" VISIBILITY="hide"><SCRIPT LANGUAGE="javascript">print(this,"-pokey");</SCRIPT></LAYER>
+<LAYER NAME="oc12" LEFT="144" TOP="218" BGCOLOR="#FFB847" VISIBILITY="hide"><SCRIPT LANGUAGE="javascript">print(this,"'clyde'");</SCRIPT></LAYER>
+<!-- START PROMPT LAYERS -->
+<LAYER NAME="sp00" LEFT="48"  TOP="218" BGCOLOR="#FFB847" VISIBILITY="hide"><SCRIPT LANGUAGE="javascript">print(this,"push start button");</SCRIPT></LAYER>
+<LAYER NAME="sp01" LEFT="64"  TOP="250" BGCOLOR="#00FFDE" VISIBILITY="hide"><SCRIPT LANGUAGE="javascript">print(this,"1 player only"); </SCRIPT></LAYER>
+<LAYER NAME="sp02" LEFT="64"  TOP="250" BGCOLOR="#00FFDE" VISIBILITY="hide"><SCRIPT LANGUAGE="javascript">print(this,"1 or 2 players"); </SCRIPT></LAYER>
+<LAYER NAME="sp03" LEFT="8"   TOP="282" BGCOLOR="#FFB897" VISIBILITY="hide"><NOBR><SCRIPT LANGUAGE="javascript">print(this,"bonus pac-man for " + BONUS + " #$%");</SCRIPT></NOBR></LAYER>
+<LAYER NAME="sp04" LEFT="32"  TOP="314" BGCOLOR="#FFB8DE" VISIBILITY="hide"><SCRIPT LANGUAGE="javascript">print(this,"@ 1980 midway mfg.co.");</SCRIPT></LAYER>
+<!-- BOARD LAYERS-->
+<LAYER NAME="boardLayer"      LEFT="0" TOP="114" BGCOLOR="#000000" VISIBILITY="hide"><IMG SRC="Images/Boards/board.gif" WIDTH="224" HEIGHT="248"></LAYER>
+<LAYER NAME="boardFlashLayer" LEFT="0" TOP="114" BGCOLOR="#000000" VISIBILITY="hide"><IMG SRC="Images/Boards/boardFlash.gif" WIDTH="224" HEIGHT="248"></LAYER>
+<!-- TEXT LAYERS-->
+<LAYER NAME="player1"   LEFT="72" TOP="202" BGCOLOR="#00FFDE" VISIBILITY="hide"><SCRIPT LANGUAGE="javascript">print(this,"player one");</SCRIPT></LAYER>
+<LAYER NAME="player2"   LEFT="72" TOP="202" BGCOLOR="#00FFDE" VISIBILITY="hide"><SCRIPT LANGUAGE="javascript">print(this,"player two");</SCRIPT></LAYER>
+<LAYER NAME="ready"     LEFT="88" TOP="250" BGCOLOR="#FFFF00" VISIBILITY="hide"><SCRIPT LANGUAGE="javascript">print(this,"ready!");</SCRIPT></LAYER>
+<LAYER NAME="game_over" LEFT="72" TOP="250" BGCOLOR="#FF0000" VISIBILITY="hide"><SCRIPT LANGUAGE="javascript">print(this,"game  over");</SCRIPT></LAYER>
+<!-- CREDITS LAYER -->
+<LAYER NAME="credits" LEFT="16" TOP="370" BGCOLOR="#DEDEDE" VISIBILITY="hide"><SCRIPT LANGUAGE="javascript">print(this,"credits");</SCRIPT></LAYER>
+<LAYER NAME="creditsScore" LEFT="80" TOP="370" CLIP="0,0,48,8" VISIBILITY="hide">
+	<LAYER LEFT="8" TOP="0"    BGCOLOR="#DEDEDE"><IMG SRC="Images/Alphabet/numbers.gif" WIDTH="8" HEIGHT="110"></LAYER>
+	<LAYER LEFT="0" TOP="-100" BGCOLOR="#DEDEDE"><IMG SRC="Images/Alphabet/numbers.gif" WIDTH="8" HEIGHT="110"></LAYER>
+</LAYER>
+<!-- LIVES LAYER -->
+<LAYER NAME="lives" LEFT="16" TOP="362" CLIP="0,0,0,16" VISIBILITY="hide"><IMG SRC="Images/Pacman/pacman_lives.gif" WIDTH="16" HEIGHT="16"><IMG SRC="Images/Pacman/pacman_lives.gif" WIDTH="16" HEIGHT="16"><IMG SRC="Images/Pacman/pacman_lives.gif" WIDTH="16" HEIGHT="16"><IMG SRC="Images/Pacman/pacman_lives.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<!-- LEVELS LAYER -->
+<LAYER NAME="level" LEFT="-96" TOP="362" CLIP="0,0,0,16" VISIBILITY="hide"><IMG SRC="Images/Fruit/key.gif" ALT="" WIDTH="16" HEIGHT="16"><IMG SRC="Images/Fruit/key.gif" ALT="" WIDTH="16" HEIGHT="16"><IMG SRC="Images/Fruit/key.gif" ALT="" WIDTH="16" HEIGHT="16"><IMG SRC="Images/Fruit/key.gif" ALT="" WIDTH="16" HEIGHT="16"><IMG SRC="Images/Fruit/key.gif" ALT="" WIDTH="16" HEIGHT="16"><IMG SRC="Images/Fruit/key.gif" ALT="" WIDTH="16" HEIGHT="16"><IMG SRC="Images/Fruit/key.gif" ALT="" WIDTH="16" HEIGHT="16"><IMG SRC="Images/Fruit/bell.gif" ALT="" WIDTH="16" HEIGHT="16"><IMG SRC="Images/Fruit/bell.gif" ALT="" WIDTH="16" HEIGHT="16"><IMG SRC="Images/Fruit/galaxian.gif" ALT="" WIDTH="16" HEIGHT="16"><IMG SRC="Images/Fruit/galaxian.gif" ALT="" WIDTH="16" HEIGHT="16"><IMG SRC="Images/Fruit/pineapple.gif" ALT="" WIDTH="16" HEIGHT="16"><IMG SRC="Images/Fruit/pineapple.gif" ALT="" WIDTH="16" HEIGHT="16"><IMG SRC="Images/Fruit/apple.gif" ALT="" WIDTH="16" HEIGHT="16"><IMG SRC="Images/Fruit/apple.gif" ALT="" WIDTH="16" HEIGHT="16"><IMG SRC="Images/Fruit/peach.gif" ALT="" WIDTH="16" HEIGHT="16"><IMG SRC="Images/Fruit/peach.gif" ALT="" WIDTH="16" HEIGHT="16"><IMG SRC="Images/Fruit/strawberry.gif" ALT="" WIDTH="16" HEIGHT="16"><IMG SRC="Images/Fruit/cherry.gif" ALT="" WIDTH="16" HEIGHT="16"></LAYER>
+<!-- PELLET LAYERS -->
+<LAYER NAME="pelletLayer" LEFT="0" TOP="114" CLIP="0,0,224,248"><SCRIPT LANGUAGE="javascript"><!--
+for (var y = 0; y < GAME_MAP.length; y++) {
+	for (var x = 0; x < GAME_MAP[y].length; x++) {
+		if (GAME_MAP[y][x] == PELLET) {
+			document.write("<LAYER NAME='pellet_" + y + "_" + x + "' LEFT='-500' TOP='0' CLIP='0,0,8,8'>");
+			document.write("<IMG SRC='Images/Pellets/pellet.gif' WIDTH='8' HEIGHT='8'>");
+			document.write("<\/LAYER>");
+		}
+	}
+}
+// --></SCRIPT></LAYER>
+<LAYER NAME="powerPelletLayer" LEFT="0" TOP="114" CLIP="0,0,224,248"><SCRIPT LANGUAGE="javascript"><!--
+for (var y = 0; y < GAME_MAP.length; y++) {
+	for (var x = 0; x < GAME_MAP[y].length; x++) {
+		if (GAME_MAP[y][x] == POWER_PELLET) {
+			document.write("<LAYER NAME='powerPellet_" + y + "_" + x + "' LEFT='-500' TOP='0' CLIP='0,0,8,8'>");
+			document.write("<IMG SRC='Images/Pellets/powerPellet.gif' WIDTH='8' HEIGHT='8'>");
+			document.write("<\/LAYER>");
+		}
+	}
+}
+// --></SCRIPT></LAYER>
+<!-- PACMAN LAYERS -->
+<LAYER NAME="pacman_l0" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Pacman/pacman_l0.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="pacman_l1" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Pacman/pacman_l1.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="pacman_l2" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Pacman/pacman_l2.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="pacman_r0" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Pacman/pacman_r0.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="pacman_r1" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Pacman/pacman_r1.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="pacman_r2" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Pacman/pacman_r2.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="pacman_u0" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Pacman/pacman_u0.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="pacman_u1" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Pacman/pacman_u1.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="pacman_u2" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Pacman/pacman_u2.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="pacman_d0" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Pacman/pacman_d0.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="pacman_d1" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Pacman/pacman_d1.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="pacman_d2" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Pacman/pacman_d2.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="pacman_x0" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Pacman/pacman_x0.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="pacman_x1" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Pacman/pacman_x1.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="pacman_x2" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Pacman/pacman_x2.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="pacman_x3" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Pacman/pacman_x3.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="pacman_x4" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Pacman/pacman_x4.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="pacman_x5" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Pacman/pacman_x5.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="pacman_x6" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Pacman/pacman_x6.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="pacman_x7" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Pacman/pacman_x7.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="pacman_x8" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Pacman/pacman_x8.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="pacman_x9" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Pacman/pacman_x9.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="pacman_xA" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Pacman/pacman_xA.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<!-- BLINKY LAYERS -->
+<LAYER NAME="blinky_l0" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/Blinky/blinky_l0.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="blinky_l1" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/Blinky/blinky_l1.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="blinky_r0" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/Blinky/blinky_r0.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="blinky_r1" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/Blinky/blinky_r1.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="blinky_u0" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/Blinky/blinky_u0.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="blinky_u1" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/Blinky/blinky_u1.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="blinky_d0" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/Blinky/blinky_d0.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="blinky_d1" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/Blinky/blinky_d1.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="blinky_b0" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/blue_0.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="blinky_b1" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/blue_1.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="blinky_w0" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/white_0.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="blinky_w1" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/white_1.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="blinky_el" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/eyes_l.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="blinky_er" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/eyes_r.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="blinky_eu" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/eyes_u.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="blinky_ed" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/eyes_d.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<!-- PINKY LAYERS -->
+<LAYER NAME="pinky_l0" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/Pinky/pinky_l0.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="pinky_l1" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/Pinky/pinky_l1.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="pinky_r0" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/Pinky/pinky_r0.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="pinky_r1" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/Pinky/pinky_r1.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="pinky_u0" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/Pinky/pinky_u0.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="pinky_u1" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/Pinky/pinky_u1.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="pinky_d0" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/Pinky/pinky_d0.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="pinky_d1" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/Pinky/pinky_d1.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="pinky_b0" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/blue_0.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="pinky_b1" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/blue_1.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="pinky_w0" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/white_0.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="pinky_w1" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/white_1.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="pinky_el" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/eyes_l.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="pinky_er" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/eyes_r.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="pinky_eu" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/eyes_u.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="pinky_ed" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/eyes_d.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<!-- INKY LAYERS -->
+<LAYER NAME="inky_l0" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/Inky/inky_l0.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="inky_l1" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/Inky/inky_l1.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="inky_r0" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/Inky/inky_r0.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="inky_r1" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/Inky/inky_r1.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="inky_u0" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/Inky/inky_u0.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="inky_u1" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/Inky/inky_u1.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="inky_d0" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/Inky/inky_d0.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="inky_d1" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/Inky/inky_d1.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="inky_b0" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/blue_0.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="inky_b1" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/blue_1.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="inky_w0" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/white_0.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="inky_w1" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/white_1.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="inky_el" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/eyes_l.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="inky_er" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/eyes_r.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="inky_eu" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/eyes_u.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="inky_ed" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/eyes_d.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<!-- CLYDE LAYERS -->
+<LAYER NAME="clyde_l0" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/Clyde/clyde_l0.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="clyde_l1" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/Clyde/clyde_l1.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="clyde_r0" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/Clyde/clyde_r0.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="clyde_r1" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/Clyde/clyde_r1.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="clyde_u0" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/Clyde/clyde_u0.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="clyde_u1" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/Clyde/clyde_u1.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="clyde_d0" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/Clyde/clyde_d0.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="clyde_d1" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/Clyde/clyde_d1.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="clyde_b0" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/blue_0.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="clyde_b1" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/blue_1.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="clyde_w0" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/white_0.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="clyde_w1" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/white_1.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="clyde_el" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/eyes_l.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="clyde_er" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/eyes_r.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="clyde_eu" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/eyes_u.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="clyde_ed" LEFT="-500" TOP="0" CLIP="0,0,16,16"><IMG SRC="Images/Ghosts/eyes_d.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<!-- FRUIT LAYERS -->
+<LAYER NAME="cherry"     LEFT="-500" TOP="0"><IMG SRC="Images/Fruit/cherry.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="strawberry" LEFT="-500" TOP="0"><IMG SRC="Images/Fruit/strawberry.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="peach"      LEFT="-500" TOP="0"><IMG SRC="Images/Fruit/peach.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="apple"      LEFT="-500" TOP="0"><IMG SRC="Images/Fruit/apple.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="pineapple"  LEFT="-500" TOP="0"><IMG SRC="Images/Fruit/pineapple.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="galaxian"   LEFT="-500" TOP="0"><IMG SRC="Images/Fruit/galaxian.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="bell"       LEFT="-500" TOP="0"><IMG SRC="Images/Fruit/bell.gif" WIDTH="16" HEIGHT="16"></LAYER>
+<LAYER NAME="key"        LEFT="-500" TOP="0"><IMG SRC="Images/Fruit/key.gif" WIDTH="16" HEIGHT="16"></LAYER>
+</BODY>
+
+<SCRIPT LANGUAGE="javascript">
+<!--
+function getCookie(name){
+	var cname = name + "=";
+	var dc = document.cookie;
+
+	if (dc.length > 0) {
+		begin = dc.indexOf(cname);
+		if (begin != -1) {
+			begin += cname.length;
+			end = dc.indexOf(";", begin);
+			if (end == -1) end = dc.length; {
+				return unescape(dc.substring(begin, end));
+			}
+		}
+	}
+	return null;
+}
+
+function setCookie(name, value, expires) {
+	document.cookie = name + "=" + escape(value) + "; path=/" + ((expires == null) ? "" : "; expires=" + expires.toGMTString());
+}
+
+function deleteCookie(name) {
+	document.cookie = name + "=; expires=Thu, 01-Jan-70 00:00:01 GMT" +  "; path=/";
+}
+
+function Player(playerIndex) {
+	this.index = playerIndex;
+	this.score = new Score("00", this.index);
+	this.lives = LIVES;
+	this.lifeFlag = false;
+	this.level = LEVEL;
+	this.pellets = new Array();
+	this.pelletCount = new Number();
+	this.initPellets = initPellets;
+}
+
+function initPlayers(players) {
+	player = new Array();
+	for (var i = 0; i < players; i++) {
+		player[i] = new Player(i);
+//		for (var j = 0; j < 6; j++) {
+//			player[i].score.rootLayer.layers[j].moveTo(player[i].score.rootLayer.layers[j].x,100);
+//		}
+		player[i].initPellets();
+//		player[i].score.drawScore();
+	}
+}
+
+function initPellets() {
+	this.pelletCount = 0;
+	pelletCount = 0;
+	for (var y = 0; y < GAME_MAP.length; y++) {
+		this.pellets[y] = new Array();
+		for (var x = 0; x < GAME_MAP[y].length; x++) {
+			if (GAME_MAP[y][x] == PELLET || GAME_MAP[y][x] == POWER_PELLET) {
+				this.pellets[y][x] = GAME_MAP[y][x];
+				this.pelletCount++;
+				pelletCount++;
+			}
+		}
+	}
+}
+
+function drawPellets() {
+	var notUp = up + 1;
+	if (notUp > player.length - 1) {
+		notUp = 0;
+	}
+	for (var y = 0; y < player[up].pellets.length; y++) {
+		for (var x = 0; x < player[up].pellets[y].length; x++) {
+			if (player[up].pellets[y][x] == 0 && player[notUp].pellets[y][x] == PELLET) {
+				document.pelletLayer.layers["pellet_" + y + "_" + x].moveTo(-500,0);
+			} else {
+				if (player[up].pellets[y][x] == 0 && player[notUp].pellets[y][x] == POWER_PELLET) {
+					document.powerPelletLayer.layers["powerPellet_" + y + "_" + x].moveTo(-500,0);
+				} else {
+					if (player[up].pellets[y][x] == PELLET) {
+						document.pelletLayer.layers["pellet_" + y + "_" + x].moveTo(x * DISTANCE, y * DISTANCE);
+					} else {
+						if (player[up].pellets[y][x] == POWER_PELLET) {
+							document.powerPelletLayer.layers["powerPellet_" + y + "_" + x].moveTo(x * DISTANCE, y * DISTANCE);
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+function Score(initialScoreValue,scoreIndex) {
+	this.index = scoreIndex;
+	this.value = initialScoreValue;
+	this.valueArray = new Array();
+	this.previousValueArray = [9,9,9,9,9,9];
+	this.incrementScore = incrementScore;
+	this.bonusFlag = true;
+	this.checkBonus = checkBonus;
+	this.checkHighScore = checkHighScore;
+	this.layer = scoreLayers[this.index];
+	this.drawScore = drawScore;
+}
+
+function incrementScore(incr) {
+	this.prevValue = this.value;
+	this.value = parseInt(this.value);
+	this.value += incr;
+	this.checkHighScore();
+	if (this.bonusFlag) {
+		this.checkBonus();
+	}
+	this.drawScore();
+}
+
+function checkBonus() {
+	if (this.value >= BONUS) {
+		player[up].lives++;
+		document.layers["lives"].clip.width = player[up].lives * 16;
+		this.bonusFlag = false;
+	}
+}
+
+function checkHighScore() {
+	if (this.value > highScore.value) {
+		highScore.value = this.value;
+		highScore.drawScore();
+	}
+}
+
+function drawScore() {
+	this.valueArray = this.value.toString().split("").reverse();
+	for (var i = 0; i < this.valueArray.length; i++) {
+		if (this.valueArray[i]) {
+			if (this.valueArray[i] != this.previousValueArray[i]) {
+				this.layer.layers[i].moveTo(scoreLayers[this.index].layers[i].x,this.valueArray[i] * -10);
+				this.previousValueArray[i] = this.valueArray[i];
+			}
+		} else {
+			this.layer.layers[i].moveTo(scoreLayers[this.index].layers[i].x,-100);
+		}
+	}
+}
+
+function saveHighScore(hiScore) {
+	setCookie(HIGH_SCORE_COOKIE, hiScore);
+}
+
+function loadHighScore() {
+	if (getCookie(HIGH_SCORE_COOKIE)) {
+		savedHighScore = getCookie(HIGH_SCORE_COOKIE);
+		highScore = new Score(savedHighScore,2);
+	} else {
+		saveHighScore("00");
+		loadHighScore();
+	}
+}
+
+
+
+
+
+function Sprite() {
+
+	this.name = new String();
+	this.x = new Number();
+	this.y = new Number();
+	this.v = FULL_SPEED;
+	this.dir = new Number();
+	this.dirArray = new Array();
+	this.state = NORMAL;
+
+	// Pacman-only properties
+	this.newDir = new Number();
+
+	// Monster-only properties
+	this.dx = new Number();
+	this.dy = new Number();
+	this.dz = new Number();
+	this.IQ = new Number();
+
+	// Fruit properties
+	this.value = new Number();
+	this.flag = new Boolean();
+	this.counter = 0;
+
+	// Animation properties
+	this.layers = new Array();
+	this.drawLayer = new Object();
+	this.disposeLayer = new Object();
+
+	// Methods
+	this.intelligence = new Function();
+	this.makeMove = makeMove;
+	this.animateSprite = animateSprite;
+	this.drawSprite = drawSprite;
+	this.disposeSprite = disposeSprite;
+}
+
+function initSprites() {
+	// Pac-Man
+	pacman = new Sprite();
+	pacman.name = "pacman";
+	pacman.x = 54;
+	pacman.y = 92;
+	pacman.dir = LEFT;
+	pacman.newDir = LEFT;
+	pacman.intelligence = humanIntelligence;
+	pacman.layers = pacmanSpriteLayers;
+	pacman.drawLayer = pacman.layers[pacman.state][pacman.dir][animPhase];
+
+	// GHOSTS
+	ghost = new Array();
+	// Blinky
+	ghost[0] = new Sprite();
+	ghost[0].name = "blinky";
+	ghost[0].x = 54;
+	ghost[0].y = 44;
+	ghost[0].dir = LEFT;
+	ghost[0].dirArray = [36,44,36,56,24,56,24,20,84,20,84,4,104,4,104,20];
+	ghost[0].dx = 54;
+	ghost[0].dy = 44;
+	ghost[0].IQ = .8;
+	ghost[0].intelligence = monsterIntelligence;
+	ghost[0].layers = blinkySpriteLayers;
+	ghost[0].drawLayer = ghost[0].layers[ghost[0].state][ghost[0].dir][animPhase];
+	// Pinky
+	ghost[1] = new Sprite();
+	ghost[1].name = "pinky";
+	ghost[1].x = 54;
+	ghost[1].y = 44;
+	ghost[1].dir = LEFT;
+	ghost[1].dirArray = [36,44,36,56,24,56,24,4,4,4,4,20,24,20,24,4,4,4];
+	ghost[1].dx = 54;
+	ghost[1].dy = 44;
+	ghost[1].IQ = .6;
+	ghost[1].intelligence = monsterIntelligence;
+	ghost[1].layers = pinkySpriteLayers;
+	ghost[1].drawLayer = ghost[1].layers[ghost[1].state][ghost[1].dir][animPhase];
+	// Inky
+	ghost[2] = new Sprite();
+	ghost[2].name = "inky";
+	ghost[2].x = 54;
+	ghost[2].y = 44;
+	ghost[2].dir = LEFT;
+	ghost[2].dirArray = [36,44,36,68,72,68,72,80,60,80];
+	ghost[2].dx = 54;
+	ghost[2].dy = 44;
+	ghost[2].IQ = .4;
+	ghost[2].intelligence = monsterIntelligence;
+	ghost[2].layers = inkySpriteLayers;
+	ghost[2].drawLayer = ghost[2].layers[ghost[2].state][ghost[2].dir][animPhase];
+	// Clyde
+	ghost[3] = new Sprite();
+	ghost[3].name = "clyde";
+	ghost[3].x = 54;
+	ghost[3].y = 56;
+	ghost[3].dir = RIGHT;
+	ghost[3].dirArray = [];
+	ghost[3].IQ = .2;
+	ghost[3].intelligence = monsterIntelligence;
+	ghost[3].layers = clydeSpriteLayers;
+	ghost[3].drawLayer = ghost[3].layers[ghost[3].state][ghost[3].dir][animPhase];
+	// FRUIT
+	fruit = new Array();
+	// Cherry
+	fruit[0] = new Sprite();
+	fruit[0].name = "cherry";
+	fruit[0].x = 54;
+	fruit[0].y = 68;
+	fruit[0].value = 100;
+	fruit[0].intelligence = fruitIntelligence;
+	fruit[0].drawLayer = fruitSpriteLayers[0];
+	fruit[0].disposeLayer = fruitSpriteLayers[0];
+}
+
+function animateSprite() {
+	this.drawLayer = this.layers[this.state][this.dir][animPhase];
+}
+
+function drawSprite() {
+	this.drawLayer.moveTo(this.x * DISTANCE + X_DRAW_OFFSET, this.y * DISTANCE + Y_DRAW_OFFSET);
+	this.disposeLayer = this.drawLayer;
+}
+
+function disposeSprite() {
+	this.disposeLayer.moveTo(-500,0);
+}
+
+function humanIntelligence() {
+		if ((this.newDir & INTELLIGENCE_MAP[this.y][this.x]) > 0) {
+			this.dir = this.newDir;
+		}
+		if ((this.dir & INTELLIGENCE_MAP[this.y][this.x]) == 0) {
+			this.dir = 0;
+		}
+}
+
+function monsterIntelligence() {
+
+	if (this.state == NORMAL) {
+		if (this.dirArray.length > 0) {
+			if (this.x == this.dx && this.y == this.dy) {
+				this.dx = this.dirArray.shift();
+				this.dy = this.dirArray.shift();
+				this.dz = PURSUE;
+				var IQ = 1;
+				this.v = FULL_SPEED;
+			}
+		} else {
+			this.dx = pacman.x;
+			this.dy = pacman.y;
+			this.dz = PURSUE;
+			var IQ = this.IQ;
+
+			if (GAME_MAP[this.y][this.x] == TUNNEL) {
+				this.v = HALF_SPEED;
+			} else {
+				this.v = FULL_SPEED;
+			}
+		}
+	} else {
+		if (this.state == BLUE || this.state == WHITE) {
+			this.dx = pacman.x;
+			this.dy = pacman.y;
+			this.dz = RUN;
+			var IQ = this.IQ;
+			this.v = HALF_SPEED;
+
+			if (blueCount == 0) {
+				this.state = WHITE;
+			}
+			if (whiteCount == 0) {
+				this.state = NORMAL;
+			}
+		} else {
+			if (this.state == EYES) {
+				this.dx = 54;
+				this.dy = 44;
+				this.dz = 1;
+				var IQ = 1;
+				this.v = DOUBLE_SPEED;
+
+				if (this.x == this.dx && this.y == this.dy) {
+					this.state = NORMAL;
+				}
+			}
+		}
+	}
+
+	if (INTELLIGENCE_MAP[this.y][this.x] == 0x05 ||
+		INTELLIGENCE_MAP[this.y][this.x] == 0x06 ||
+		INTELLIGENCE_MAP[this.y][this.x] == 0x09 ||
+		INTELLIGENCE_MAP[this.y][this.x] == 0x0A) {
+
+		if ((flipDir(this.dir) & INTELLIGENCE_MAP[this.y][this.x]) != 0) {
+			this.dir = INTELLIGENCE_MAP[this.y][this.x] ^ flipDir(this.dir);
+		}
+	} else {
+		if (INTELLIGENCE_MAP[this.y][this.x] == 0x07 ||
+			INTELLIGENCE_MAP[this.y][this.x] == 0x0B ||
+			INTELLIGENCE_MAP[this.y][this.x] == 0x0D ||
+			INTELLIGENCE_MAP[this.y][this.x] == 0x0E ||
+			INTELLIGENCE_MAP[this.y][this.x] == 0x0F) {
+
+			X_OPT = [LEFT,0,RIGHT];
+			Y_OPT = [UP,0,DOWN];
+
+			RAND_OPT = new Array();
+			RAND_OPT[0]  = [0];
+			RAND_OPT[1]  = [LEFT];
+			RAND_OPT[2]  = [RIGHT];
+			RAND_OPT[3]  = [LEFT,RIGHT];
+			RAND_OPT[4]  = [UP];
+			RAND_OPT[5]  = [LEFT,UP];
+			RAND_OPT[6]  = [RIGHT,UP];
+			RAND_OPT[7]  = [LEFT,RIGHT,UP];
+			RAND_OPT[8]  = [DOWN];
+			RAND_OPT[9]  = [LEFT,DOWN];
+			RAND_OPT[10] = [RIGHT,DOWN];
+			RAND_OPT[11] = [LEFT,RIGHT,DOWN];
+			RAND_OPT[12] = [UP,DOWN];
+			RAND_OPT[13] = [LEFT,UP,DOWN];
+			RAND_OPT[14] = [RIGHT,UP,DOWN];
+			RAND_OPT[15] = [LEFT,RIGHT,UP,DOWN];
+
+			var xDif = 0;
+			var yDif = 0;
+			var senseX = 0;
+			var senseY = 0;
+			var senseA = 0;
+			var senseB = 0;
+			var modCnrOpt = 0;
+
+			xDif = (this.dx - this.x) * this.dz;
+			yDif = (this.dy - this.y) * this.dz;
+
+			senseX = X_OPT[sign(xDif) + 1];
+			senseY = Y_OPT[sign(yDif) + 1];
+
+			if (Math.abs(xDif) > Math.abs(yDif)) {
+				senseA = senseX;
+				senseB = senseY;
+			} else {
+				if (Math.abs(yDif) > Math.abs(xDif)) {
+					senseA = senseY;
+					senseB = senseX;
+				} else {
+					if (Math.abs(xDif) == Math.abs(yDif)) {
+						if (Math.random() > .5) {
+							senseA = senseX;
+							senseB = senseY;
+						} else {
+							senseA = senseY;
+							senseB = senseX;
+						}
+					}
+				}
+			}
+
+			if ((flipDir(this.dir) & INTELLIGENCE_MAP[this.y][this.x]) != 0) {
+				modCnrOpt = INTELLIGENCE_MAP[this.y][this.x] ^ flipDir(this.dir);
+			} else {
+				modCnrOpt = this.dir;
+			}
+
+			if (Math.random() > IQ) {
+				myRand = Math.round(Math.random() * (RAND_OPT[modCnrOpt].length - 1));
+				this.dir = RAND_OPT[modCnrOpt][myRand];
+			} else {
+				if ((senseA & modCnrOpt) == 0) {
+					if ((senseB & modCnrOpt) == 0) {
+						myRand = Math.round(Math.random() * (RAND_OPT[modCnrOpt].length - 1));
+						this.dir = RAND_OPT[modCnrOpt][myRand];
+					} else {
+						this.dir = senseB;
+					}
+				} else {
+					this.dir = senseA;
+				}
+			}
+		}
+	}
+}
+
+function fruitIntelligence() {
+	if (this.counter == 0) {
+		this.flag = false;
+		this.disposeSprite();
+	} else {
+		this.counter--;
+		if (Math.abs(pacman.x - this.x) < 4 && Math.abs(pacman.y - this.y) < 4) {
+			player[up].score.incrementScore(this.value);
+			this.flag = false;
+			this.counter = 0;
+			this.disposeSprite();
+		}
+	}
+}
+
+function flipDir(curDir) {
+	if (curDir == LEFT || curDir == UP) {
+		oppDir = curDir << 1;
+	} else {
+		oppDir = curDir >> 1;
+	}
+	return oppDir;
+}
+
+function sign(n) {
+	return (n ? ((n > 0) ? 1 : -1) : 0)
+}
+
+function makeMove() {
+
+	if (this.x < 0) {
+		this.x = BOARD_WIDTH - 1;
+	} else {
+		if (this.x > BOARD_WIDTH - 1) {
+			this.x = 0;
+		}
+	}
+
+	if (this.dir == LEFT) {
+		this.x--;
+	} else {
+		if (this.dir == RIGHT) {
+			this.x++;
+		} else {
+			if (this.dir == UP) {
+				this.y--;
+			} else {
+				if (this.dir == DOWN) {
+					this.y++;
+				}
+			}
+		}
+	}
+}
+
+
+function contact() {
+	for (var i = 0; i < NUM_GHOSTS; i++) {
+		if (Math.abs(pacman.x - ghost[i].x) < 4 && Math.abs(pacman.y - ghost[i].y) < 4) {
+			if (ghost[i].state == NORMAL) {
+				player[up].lifeFlag = false;
+			} else {
+				if (ghost[i].state == BLUE || ghost[i].state == WHITE) {
+					player[up].score.incrementScore(ghostValue);
+					ghostValue *= 2;
+					ghost[i].state = EYES;
+					//monster[i].init == 0;
+				}
+			}
+		}
+	}
+}
+function eat() {
+	if (player[up].pellets[pacman.y][pacman.x] == PELLET) {
+		player[up].pellets[pacman.y][pacman.x] = 0;
+		document.pelletLayer.layers["pellet_" + pacman.y + "_" + pacman.x].moveTo(-500,0);
+		player[up].pelletCount--;
+		if (player[up].pelletCount == 0) {
+			player[up].lifeFlag = false;
+		}
+		player[up].score.incrementScore(10);
+	} else {
+		if (player[up].pellets[pacman.y][pacman.x] == POWER_PELLET) {
+			player[up].pellets[pacman.y][pacman.x] = 0;
+			document.powerPelletLayer.layers["powerPellet_" + pacman.y + "_" + pacman.x].moveTo(-500,0);
+			player[up].pelletCount--;
+			if (player[up].pelletCount == 0) {
+				player[up].lifeFlag = false;
+			}
+			player[up].score.incrementScore(50);
+			for (var i = 0; i < NUM_GHOSTS; i++) {
+				if (ghost[i].state != EYES) {
+					ghost[i].state = BLUE;
+					ghost[i].dir = flipDir(ghost[i].dir);
+				}
+			}
+			// set timer for monsters blue time
+			blueCount = 80;
+			whiteCount = 24;
+			ghostValue = 200;
+		}
+	}
+}
+
+function keyDown(evnt) {
+	var k = evnt.which;
+
+	if (gameState == 0) {
+		if (k == 113 || k == 81) {
+			addCredit();
+			gameState =1;
+			startPrompt();
+		}
+	} else {
+		if (gameState == 1) {
+			if (k == 113 || k == 81) {
+				addCredit();
+				startPrompt();
+			} else {
+				if (k == 49) {
+					credits.value--;
+					initPlayers(1)
+					gameIntro();
+				} else {
+					if (k == 50 && credits >= 2) {
+						credits.value--;
+						credits.value--;
+						initPlayers(2)
+						gameIntro();
+					}
+				}
+			}
+		} else {
+			if (gameState == 2 || gameState == 5 || gameState == 6 || gameState == 7) {
+				if (k == 113 || k == 81) {
+					addCredit();
+				}
+			} else {
+				if (gameState == 3 || gameState == 4) {
+					if (k == 113 || k == 81) {
+						addCredit();
+					} else {
+						if (k == 28 || k == 74 || k == 106 || k == 65 || k == 97) {
+							pacman.newDir = LEFT;
+						} else {
+							if (k == 29 || k == 76 || k == 108 || k == 68 || k == 100) {
+								pacman.newDir = RIGHT;
+							} else {
+								if (k == 30 || k == 73 || k == 105 || k == 87 || k == 119) {
+									pacman.newDir = UP;
+								} else {
+									if (k == 31 || k == 75 || k == 107 || k == 83 || k == 115) {
+										pacman.newDir = DOWN;
+									} else {
+										if (k == 27) {
+											player[up].lifeFlag = false;
+											for (i = 0; i < player.length; i++) {
+												player[i].lives = 0;
+											}
+										} else {
+											if (k == 80 || k == 112) {
+												pause(0);
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+function pause(pauseTime) {
+	if (gamePaused) {
+		setTimeout("lifeID = setTimeout('life(); ', GAME_SPEED);", pauseTime);
+		gamePaused = false;
+	} else {
+		clearTimeout(lifeID);
+		gamePaused = true;
+	}
+}
+
+
+function addCredit() {
+	if (credits.value < 99) {
+		credits.value++;
+		credits.drawScore();
+	}
+//	document.embeds.coinSnd.play(false);
+}
+
+// ==== STATE -1: GAME INITIALIZATION ========
+
+function gameInit() {
+	gameState = -1;
+
+	// UP LAYERS
+	upLayers = new Array();
+	upLayers[0] = document.oneUp;
+	upLayers[1] = document.twoUp;
+	upLayers[2] = document.highUp;
+	// SCORE LAYERS
+	scoreLayers = new Array();
+	scoreLayers[0] = document.oneUpScore;
+	scoreLayers[1] = document.twoUpScore;
+	scoreLayers[2] = document.highScore;
+	scoreLayers[3] = document.creditsScore;
+
+	loadHighScore();
+	highScore.drawScore();
+	credits = new Score(0,3);
+
+	// PACMAN LAYERS
+	pacmanSpriteLayers = new Array();
+	pacmanSpriteLayers[NORMAL] = new Array();
+	pacmanSpriteLayers[NORMAL][LEFT] = new Array();
+	pacmanSpriteLayers[NORMAL][LEFT][0] = document.pacman_l0;
+	pacmanSpriteLayers[NORMAL][LEFT][1] = document.pacman_l1;
+	pacmanSpriteLayers[NORMAL][LEFT][2] = document.pacman_l2;
+	pacmanSpriteLayers[NORMAL][LEFT][3] = document.pacman_l1;
+	pacmanSpriteLayers[NORMAL][RIGHT] = new Array();
+	pacmanSpriteLayers[NORMAL][RIGHT][0] = document.pacman_r0;
+	pacmanSpriteLayers[NORMAL][RIGHT][1] = document.pacman_r1;
+	pacmanSpriteLayers[NORMAL][RIGHT][2] = document.pacman_r2;
+	pacmanSpriteLayers[NORMAL][RIGHT][3] = document.pacman_r1;
+	pacmanSpriteLayers[NORMAL][UP] = new Array();
+	pacmanSpriteLayers[NORMAL][UP][0] = document.pacman_u0;
+	pacmanSpriteLayers[NORMAL][UP][1] = document.pacman_u1;
+	pacmanSpriteLayers[NORMAL][UP][2] = document.pacman_u2;
+	pacmanSpriteLayers[NORMAL][UP][3] = document.pacman_u1;
+	pacmanSpriteLayers[NORMAL][DOWN] = new Array();
+	pacmanSpriteLayers[NORMAL][DOWN][0] = document.pacman_d0;
+	pacmanSpriteLayers[NORMAL][DOWN][1] = document.pacman_d1;
+	pacmanSpriteLayers[NORMAL][DOWN][2] = document.pacman_d2;
+	pacmanSpriteLayers[NORMAL][DOWN][3] = document.pacman_d1;
+	pacmanSpriteLayers[DEATH] = new Array();
+	pacmanSpriteLayers[DEATH][0] = document.pacman_x0;
+	pacmanSpriteLayers[DEATH][1] = document.pacman_x1;
+	pacmanSpriteLayers[DEATH][2] = document.pacman_x2;
+	pacmanSpriteLayers[DEATH][3] = document.pacman_x3;
+	pacmanSpriteLayers[DEATH][4] = document.pacman_x4;
+	pacmanSpriteLayers[DEATH][5] = document.pacman_x5;
+	pacmanSpriteLayers[DEATH][6] = document.pacman_x6;
+	pacmanSpriteLayers[DEATH][7] = document.pacman_x7;
+	pacmanSpriteLayers[DEATH][8] = document.pacman_x8;
+	pacmanSpriteLayers[DEATH][9] = document.pacman_x9;
+	pacmanSpriteLayers[DEATH][10] = document.pacman_xA;
+	// BLINKY LAYERS
+	blinkySpriteLayers = new Array();
+	blinkySpriteLayers[NORMAL] = new Array();
+	blinkySpriteLayers[NORMAL][LEFT] = new Array();
+	blinkySpriteLayers[NORMAL][LEFT][0] = document.blinky_l0;
+	blinkySpriteLayers[NORMAL][LEFT][1] = document.blinky_l0;
+	blinkySpriteLayers[NORMAL][LEFT][2] = document.blinky_l1;
+	blinkySpriteLayers[NORMAL][LEFT][3] = document.blinky_l1;
+	blinkySpriteLayers[NORMAL][RIGHT] = new Array();
+	blinkySpriteLayers[NORMAL][RIGHT][0] = document.blinky_r0;
+	blinkySpriteLayers[NORMAL][RIGHT][1] = document.blinky_r0;
+	blinkySpriteLayers[NORMAL][RIGHT][2] = document.blinky_r1;
+	blinkySpriteLayers[NORMAL][RIGHT][3] = document.blinky_r1;
+	blinkySpriteLayers[NORMAL][UP] = new Array();
+	blinkySpriteLayers[NORMAL][UP][0] = document.blinky_u0;
+	blinkySpriteLayers[NORMAL][UP][1] = document.blinky_u0;
+	blinkySpriteLayers[NORMAL][UP][2] = document.blinky_u1;
+	blinkySpriteLayers[NORMAL][UP][3] = document.blinky_u1;
+	blinkySpriteLayers[NORMAL][DOWN] = new Array();
+	blinkySpriteLayers[NORMAL][DOWN][0] = document.blinky_d0;
+	blinkySpriteLayers[NORMAL][DOWN][1] = document.blinky_d0;
+	blinkySpriteLayers[NORMAL][DOWN][2] = document.blinky_d1;
+	blinkySpriteLayers[NORMAL][DOWN][3] = document.blinky_d1;
+	blinkySpriteLayers[BLUE] = new Array();
+	blinkySpriteLayers[BLUE][LEFT] = new Array();
+	blinkySpriteLayers[BLUE][LEFT][0] = document.blinky_b0;
+	blinkySpriteLayers[BLUE][LEFT][1] = document.blinky_b0;
+	blinkySpriteLayers[BLUE][LEFT][2] = document.blinky_b1;
+	blinkySpriteLayers[BLUE][LEFT][3] = document.blinky_b1;
+	blinkySpriteLayers[BLUE][RIGHT] = new Array();
+	blinkySpriteLayers[BLUE][RIGHT][0] = document.blinky_b0;
+	blinkySpriteLayers[BLUE][RIGHT][1] = document.blinky_b0;
+	blinkySpriteLayers[BLUE][RIGHT][2] = document.blinky_b1;
+	blinkySpriteLayers[BLUE][RIGHT][3] = document.blinky_b1;
+	blinkySpriteLayers[BLUE][UP] = new Array();
+	blinkySpriteLayers[BLUE][UP][0] = document.blinky_b0;
+	blinkySpriteLayers[BLUE][UP][1] = document.blinky_b0;
+	blinkySpriteLayers[BLUE][UP][2] = document.blinky_b1;
+	blinkySpriteLayers[BLUE][UP][3] = document.blinky_b1;
+	blinkySpriteLayers[BLUE][DOWN] = new Array();
+	blinkySpriteLayers[BLUE][DOWN][0] = document.blinky_b0;
+	blinkySpriteLayers[BLUE][DOWN][1] = document.blinky_b0;
+	blinkySpriteLayers[BLUE][DOWN][2] = document.blinky_b1;
+	blinkySpriteLayers[BLUE][DOWN][3] = document.blinky_b1;
+	blinkySpriteLayers[WHITE] = new Array();
+	blinkySpriteLayers[WHITE][LEFT] = new Array();
+	blinkySpriteLayers[WHITE][LEFT][0] = document.blinky_b0;
+	blinkySpriteLayers[WHITE][LEFT][1] = document.blinky_w0;
+	blinkySpriteLayers[WHITE][LEFT][2] = document.blinky_b1;
+	blinkySpriteLayers[WHITE][LEFT][3] = document.blinky_w1;
+	blinkySpriteLayers[WHITE][RIGHT] = new Array();
+	blinkySpriteLayers[WHITE][RIGHT][0] = document.blinky_b0;
+	blinkySpriteLayers[WHITE][RIGHT][1] = document.blinky_w0;
+	blinkySpriteLayers[WHITE][RIGHT][2] = document.blinky_b1;
+	blinkySpriteLayers[WHITE][RIGHT][3] = document.blinky_w1;
+	blinkySpriteLayers[WHITE][UP] = new Array();
+	blinkySpriteLayers[WHITE][UP][0] = document.blinky_b0;
+	blinkySpriteLayers[WHITE][UP][1] = document.blinky_w0;
+	blinkySpriteLayers[WHITE][UP][2] = document.blinky_b1;
+	blinkySpriteLayers[WHITE][UP][3] = document.blinky_w1;
+	blinkySpriteLayers[WHITE][DOWN] = new Array();
+	blinkySpriteLayers[WHITE][DOWN][0] = document.blinky_b0;
+	blinkySpriteLayers[WHITE][DOWN][1] = document.blinky_w0;
+	blinkySpriteLayers[WHITE][DOWN][2] = document.blinky_b1;
+	blinkySpriteLayers[WHITE][DOWN][3] = document.blinky_w1;
+	blinkySpriteLayers[EYES] = new Array();
+	blinkySpriteLayers[EYES][LEFT] = new Array();
+	blinkySpriteLayers[EYES][LEFT][0] = document.blinky_el;
+	blinkySpriteLayers[EYES][LEFT][1] = document.blinky_el;
+	blinkySpriteLayers[EYES][LEFT][2] = document.blinky_el;
+	blinkySpriteLayers[EYES][LEFT][3] = document.blinky_el;
+	blinkySpriteLayers[EYES][RIGHT] = new Array();
+	blinkySpriteLayers[EYES][RIGHT][0] = document.blinky_er;
+	blinkySpriteLayers[EYES][RIGHT][1] = document.blinky_er;
+	blinkySpriteLayers[EYES][RIGHT][2] = document.blinky_er;
+	blinkySpriteLayers[EYES][RIGHT][3] = document.blinky_er;
+	blinkySpriteLayers[EYES][UP] = new Array();
+	blinkySpriteLayers[EYES][UP][0] = document.blinky_eu;
+	blinkySpriteLayers[EYES][UP][1] = document.blinky_eu;
+	blinkySpriteLayers[EYES][UP][2] = document.blinky_eu;
+	blinkySpriteLayers[EYES][UP][3] = document.blinky_eu;
+	blinkySpriteLayers[EYES][DOWN] = new Array();
+	blinkySpriteLayers[EYES][DOWN][0] = document.blinky_ed;
+	blinkySpriteLayers[EYES][DOWN][1] = document.blinky_ed;
+	blinkySpriteLayers[EYES][DOWN][2] = document.blinky_ed;
+	blinkySpriteLayers[EYES][DOWN][3] = document.blinky_ed;
+	// PINKY LAYERS
+	pinkySpriteLayers = new Array();
+	pinkySpriteLayers[NORMAL] = new Array();
+	pinkySpriteLayers[NORMAL][LEFT] = new Array();
+	pinkySpriteLayers[NORMAL][LEFT][0] = document.pinky_l0;
+	pinkySpriteLayers[NORMAL][LEFT][1] = document.pinky_l0;
+	pinkySpriteLayers[NORMAL][LEFT][2] = document.pinky_l1;
+	pinkySpriteLayers[NORMAL][LEFT][3] = document.pinky_l1;
+	pinkySpriteLayers[NORMAL][RIGHT] = new Array();
+	pinkySpriteLayers[NORMAL][RIGHT][0] = document.pinky_r0;
+	pinkySpriteLayers[NORMAL][RIGHT][1] = document.pinky_r0;
+	pinkySpriteLayers[NORMAL][RIGHT][2] = document.pinky_r1;
+	pinkySpriteLayers[NORMAL][RIGHT][3] = document.pinky_r1;
+	pinkySpriteLayers[NORMAL][UP] = new Array();
+	pinkySpriteLayers[NORMAL][UP][0] = document.pinky_u0;
+	pinkySpriteLayers[NORMAL][UP][1] = document.pinky_u0;
+	pinkySpriteLayers[NORMAL][UP][2] = document.pinky_u1;
+	pinkySpriteLayers[NORMAL][UP][3] = document.pinky_u1;
+	pinkySpriteLayers[NORMAL][DOWN] = new Array();
+	pinkySpriteLayers[NORMAL][DOWN][0] = document.pinky_d0;
+	pinkySpriteLayers[NORMAL][DOWN][1] = document.pinky_d0;
+	pinkySpriteLayers[NORMAL][DOWN][2] = document.pinky_d1;
+	pinkySpriteLayers[NORMAL][DOWN][3] = document.pinky_d1;
+	pinkySpriteLayers[BLUE] = new Array();
+	pinkySpriteLayers[BLUE][LEFT] = new Array();
+	pinkySpriteLayers[BLUE][LEFT][0] = document.pinky_b0;
+	pinkySpriteLayers[BLUE][LEFT][1] = document.pinky_b0;
+	pinkySpriteLayers[BLUE][LEFT][2] = document.pinky_b1;
+	pinkySpriteLayers[BLUE][LEFT][3] = document.pinky_b1;
+	pinkySpriteLayers[BLUE][RIGHT] = new Array();
+	pinkySpriteLayers[BLUE][RIGHT][0] = document.pinky_b0;
+	pinkySpriteLayers[BLUE][RIGHT][1] = document.pinky_b0;
+	pinkySpriteLayers[BLUE][RIGHT][2] = document.pinky_b1;
+	pinkySpriteLayers[BLUE][RIGHT][3] = document.pinky_b1;
+	pinkySpriteLayers[BLUE][UP] = new Array();
+	pinkySpriteLayers[BLUE][UP][0] = document.pinky_b0;
+	pinkySpriteLayers[BLUE][UP][1] = document.pinky_b0;
+	pinkySpriteLayers[BLUE][UP][2] = document.pinky_b1;
+	pinkySpriteLayers[BLUE][UP][3] = document.pinky_b1;
+	pinkySpriteLayers[BLUE][DOWN] = new Array();
+	pinkySpriteLayers[BLUE][DOWN][0] = document.pinky_b0;
+	pinkySpriteLayers[BLUE][DOWN][1] = document.pinky_b0;
+	pinkySpriteLayers[BLUE][DOWN][2] = document.pinky_b1;
+	pinkySpriteLayers[BLUE][DOWN][3] = document.pinky_b1;
+	pinkySpriteLayers[WHITE] = new Array();
+	pinkySpriteLayers[WHITE][LEFT] = new Array();
+	pinkySpriteLayers[WHITE][LEFT][0] = document.pinky_b0;
+	pinkySpriteLayers[WHITE][LEFT][1] = document.pinky_w0;
+	pinkySpriteLayers[WHITE][LEFT][2] = document.pinky_b1;
+	pinkySpriteLayers[WHITE][LEFT][3] = document.pinky_w1;
+	pinkySpriteLayers[WHITE][RIGHT] = new Array();
+	pinkySpriteLayers[WHITE][RIGHT][0] = document.pinky_b0;
+	pinkySpriteLayers[WHITE][RIGHT][1] = document.pinky_w0;
+	pinkySpriteLayers[WHITE][RIGHT][2] = document.pinky_b1;
+	pinkySpriteLayers[WHITE][RIGHT][3] = document.pinky_w1;
+	pinkySpriteLayers[WHITE][UP] = new Array();
+	pinkySpriteLayers[WHITE][UP][0] = document.pinky_b0;
+	pinkySpriteLayers[WHITE][UP][1] = document.pinky_w0;
+	pinkySpriteLayers[WHITE][UP][2] = document.pinky_b1;
+	pinkySpriteLayers[WHITE][UP][3] = document.pinky_w1;
+	pinkySpriteLayers[WHITE][DOWN] = new Array();
+	pinkySpriteLayers[WHITE][DOWN][0] = document.pinky_b0;
+	pinkySpriteLayers[WHITE][DOWN][1] = document.pinky_w0;
+	pinkySpriteLayers[WHITE][DOWN][2] = document.pinky_b1;
+	pinkySpriteLayers[WHITE][DOWN][3] = document.pinky_w1;
+	pinkySpriteLayers[EYES] = new Array();
+	pinkySpriteLayers[EYES][LEFT] = new Array();
+	pinkySpriteLayers[EYES][LEFT][0] = document.pinky_el;
+	pinkySpriteLayers[EYES][LEFT][1] = document.pinky_el;
+	pinkySpriteLayers[EYES][LEFT][2] = document.pinky_el;
+	pinkySpriteLayers[EYES][LEFT][3] = document.pinky_el;
+	pinkySpriteLayers[EYES][RIGHT] = new Array();
+	pinkySpriteLayers[EYES][RIGHT][0] = document.pinky_er;
+	pinkySpriteLayers[EYES][RIGHT][1] = document.pinky_er;
+	pinkySpriteLayers[EYES][RIGHT][2] = document.pinky_er;
+	pinkySpriteLayers[EYES][RIGHT][3] = document.pinky_er;
+	pinkySpriteLayers[EYES][UP] = new Array();
+	pinkySpriteLayers[EYES][UP][0] = document.pinky_eu;
+	pinkySpriteLayers[EYES][UP][1] = document.pinky_eu;
+	pinkySpriteLayers[EYES][UP][2] = document.pinky_eu;
+	pinkySpriteLayers[EYES][UP][3] = document.pinky_eu;
+	pinkySpriteLayers[EYES][DOWN] = new Array();
+	pinkySpriteLayers[EYES][DOWN][0] = document.pinky_ed;
+	pinkySpriteLayers[EYES][DOWN][1] = document.pinky_ed;
+	pinkySpriteLayers[EYES][DOWN][2] = document.pinky_ed;
+	pinkySpriteLayers[EYES][DOWN][3] = document.pinky_ed;
+	// INKY LAYERS
+	inkySpriteLayers = new Array();
+	inkySpriteLayers[NORMAL] = new Array();
+	inkySpriteLayers[NORMAL][LEFT] = new Array();
+	inkySpriteLayers[NORMAL][LEFT][0] = document.inky_l0;
+	inkySpriteLayers[NORMAL][LEFT][1] = document.inky_l0;
+	inkySpriteLayers[NORMAL][LEFT][2] = document.inky_l1;
+	inkySpriteLayers[NORMAL][LEFT][3] = document.inky_l1;
+	inkySpriteLayers[NORMAL][RIGHT] = new Array();
+	inkySpriteLayers[NORMAL][RIGHT][0] = document.inky_r0;
+	inkySpriteLayers[NORMAL][RIGHT][1] = document.inky_r0;
+	inkySpriteLayers[NORMAL][RIGHT][2] = document.inky_r1;
+	inkySpriteLayers[NORMAL][RIGHT][3] = document.inky_r1;
+	inkySpriteLayers[NORMAL][UP] = new Array();
+	inkySpriteLayers[NORMAL][UP][0] = document.inky_u0;
+	inkySpriteLayers[NORMAL][UP][1] = document.inky_u0;
+	inkySpriteLayers[NORMAL][UP][2] = document.inky_u1;
+	inkySpriteLayers[NORMAL][UP][3] = document.inky_u1;
+	inkySpriteLayers[NORMAL][DOWN] = new Array();
+	inkySpriteLayers[NORMAL][DOWN][0] = document.inky_d0;
+	inkySpriteLayers[NORMAL][DOWN][1] = document.inky_d0;
+	inkySpriteLayers[NORMAL][DOWN][2] = document.inky_d1;
+	inkySpriteLayers[NORMAL][DOWN][3] = document.inky_d1;
+	inkySpriteLayers[BLUE] = new Array();
+	inkySpriteLayers[BLUE][LEFT] = new Array();
+	inkySpriteLayers[BLUE][LEFT][0] = document.inky_b0;
+	inkySpriteLayers[BLUE][LEFT][1] = document.inky_b0;
+	inkySpriteLayers[BLUE][LEFT][2] = document.inky_b1;
+	inkySpriteLayers[BLUE][LEFT][3] = document.inky_b1;
+	inkySpriteLayers[BLUE][RIGHT] = new Array();
+	inkySpriteLayers[BLUE][RIGHT][0] = document.inky_b0;
+	inkySpriteLayers[BLUE][RIGHT][1] = document.inky_b0;
+	inkySpriteLayers[BLUE][RIGHT][2] = document.inky_b1;
+	inkySpriteLayers[BLUE][RIGHT][3] = document.inky_b1;
+	inkySpriteLayers[BLUE][UP] = new Array();
+	inkySpriteLayers[BLUE][UP][0] = document.inky_b0;
+	inkySpriteLayers[BLUE][UP][1] = document.inky_b0;
+	inkySpriteLayers[BLUE][UP][2] = document.inky_b1;
+	inkySpriteLayers[BLUE][UP][3] = document.inky_b1;
+	inkySpriteLayers[BLUE][DOWN] = new Array();
+	inkySpriteLayers[BLUE][DOWN][0] = document.inky_b0;
+	inkySpriteLayers[BLUE][DOWN][1] = document.inky_b0;
+	inkySpriteLayers[BLUE][DOWN][2] = document.inky_b1;
+	inkySpriteLayers[BLUE][DOWN][3] = document.inky_b1;
+	inkySpriteLayers[WHITE] = new Array();
+	inkySpriteLayers[WHITE][LEFT] = new Array();
+	inkySpriteLayers[WHITE][LEFT][0] = document.inky_b0;
+	inkySpriteLayers[WHITE][LEFT][1] = document.inky_w0;
+	inkySpriteLayers[WHITE][LEFT][2] = document.inky_b1;
+	inkySpriteLayers[WHITE][LEFT][3] = document.inky_w1;
+	inkySpriteLayers[WHITE][RIGHT] = new Array();
+	inkySpriteLayers[WHITE][RIGHT][0] = document.inky_b0;
+	inkySpriteLayers[WHITE][RIGHT][1] = document.inky_w0;
+	inkySpriteLayers[WHITE][RIGHT][2] = document.inky_b1;
+	inkySpriteLayers[WHITE][RIGHT][3] = document.inky_w1;
+	inkySpriteLayers[WHITE][UP] = new Array();
+	inkySpriteLayers[WHITE][UP][0] = document.inky_b0;
+	inkySpriteLayers[WHITE][UP][1] = document.inky_w0;
+	inkySpriteLayers[WHITE][UP][2] = document.inky_b1;
+	inkySpriteLayers[WHITE][UP][3] = document.inky_w1;
+	inkySpriteLayers[WHITE][DOWN] = new Array();
+	inkySpriteLayers[WHITE][DOWN][0] = document.inky_b0;
+	inkySpriteLayers[WHITE][DOWN][1] = document.inky_w0;
+	inkySpriteLayers[WHITE][DOWN][2] = document.inky_b1;
+	inkySpriteLayers[WHITE][DOWN][3] = document.inky_w1;
+	inkySpriteLayers[EYES] = new Array();
+	inkySpriteLayers[EYES][LEFT] = new Array();
+	inkySpriteLayers[EYES][LEFT][0] = document.inky_el;
+	inkySpriteLayers[EYES][LEFT][1] = document.inky_el;
+	inkySpriteLayers[EYES][LEFT][2] = document.inky_el;
+	inkySpriteLayers[EYES][LEFT][3] = document.inky_el;
+	inkySpriteLayers[EYES][RIGHT] = new Array();
+	inkySpriteLayers[EYES][RIGHT][0] = document.inky_er;
+	inkySpriteLayers[EYES][RIGHT][1] = document.inky_er;
+	inkySpriteLayers[EYES][RIGHT][2] = document.inky_er;
+	inkySpriteLayers[EYES][RIGHT][3] = document.inky_er;
+	inkySpriteLayers[EYES][UP] = new Array();
+	inkySpriteLayers[EYES][UP][0] = document.inky_eu;
+	inkySpriteLayers[EYES][UP][1] = document.inky_eu;
+	inkySpriteLayers[EYES][UP][2] = document.inky_eu;
+	inkySpriteLayers[EYES][UP][3] = document.inky_eu;
+	inkySpriteLayers[EYES][DOWN] = new Array();
+	inkySpriteLayers[EYES][DOWN][0] = document.inky_ed;
+	inkySpriteLayers[EYES][DOWN][1] = document.inky_ed;
+	inkySpriteLayers[EYES][DOWN][2] = document.inky_ed;
+	inkySpriteLayers[EYES][DOWN][3] = document.inky_ed;
+	// CLYDE LAYERS
+	clydeSpriteLayers = new Array();
+	clydeSpriteLayers[NORMAL] = new Array();
+	clydeSpriteLayers[NORMAL][LEFT] = new Array();
+	clydeSpriteLayers[NORMAL][LEFT][0] = document.clyde_l0;
+	clydeSpriteLayers[NORMAL][LEFT][1] = document.clyde_l0;
+	clydeSpriteLayers[NORMAL][LEFT][2] = document.clyde_l1;
+	clydeSpriteLayers[NORMAL][LEFT][3] = document.clyde_l1;
+	clydeSpriteLayers[NORMAL][RIGHT] = new Array();
+	clydeSpriteLayers[NORMAL][RIGHT][0] = document.clyde_r0;
+	clydeSpriteLayers[NORMAL][RIGHT][1] = document.clyde_r0;
+	clydeSpriteLayers[NORMAL][RIGHT][2] = document.clyde_r1;
+	clydeSpriteLayers[NORMAL][RIGHT][3] = document.clyde_r1;
+	clydeSpriteLayers[NORMAL][UP] = new Array();
+	clydeSpriteLayers[NORMAL][UP][0] = document.clyde_u0;
+	clydeSpriteLayers[NORMAL][UP][1] = document.clyde_u0;
+	clydeSpriteLayers[NORMAL][UP][2] = document.clyde_u1;
+	clydeSpriteLayers[NORMAL][UP][3] = document.clyde_u1;
+	clydeSpriteLayers[NORMAL][DOWN] = new Array();
+	clydeSpriteLayers[NORMAL][DOWN][0] = document.clyde_d0;
+	clydeSpriteLayers[NORMAL][DOWN][1] = document.clyde_d0;
+	clydeSpriteLayers[NORMAL][DOWN][2] = document.clyde_d1;
+	clydeSpriteLayers[NORMAL][DOWN][3] = document.clyde_d1;
+	clydeSpriteLayers[BLUE] = new Array();
+	clydeSpriteLayers[BLUE][LEFT] = new Array();
+	clydeSpriteLayers[BLUE][LEFT][0] = document.clyde_b0;
+	clydeSpriteLayers[BLUE][LEFT][1] = document.clyde_b0;
+	clydeSpriteLayers[BLUE][LEFT][2] = document.clyde_b1;
+	clydeSpriteLayers[BLUE][LEFT][3] = document.clyde_b1;
+	clydeSpriteLayers[BLUE][RIGHT] = new Array();
+	clydeSpriteLayers[BLUE][RIGHT][0] = document.clyde_b0;
+	clydeSpriteLayers[BLUE][RIGHT][1] = document.clyde_b0;
+	clydeSpriteLayers[BLUE][RIGHT][2] = document.clyde_b1;
+	clydeSpriteLayers[BLUE][RIGHT][3] = document.clyde_b1;
+	clydeSpriteLayers[BLUE][UP] = new Array();
+	clydeSpriteLayers[BLUE][UP][0] = document.clyde_b0;
+	clydeSpriteLayers[BLUE][UP][1] = document.clyde_b0;
+	clydeSpriteLayers[BLUE][UP][2] = document.clyde_b1;
+	clydeSpriteLayers[BLUE][UP][3] = document.clyde_b1;
+	clydeSpriteLayers[BLUE][DOWN] = new Array();
+	clydeSpriteLayers[BLUE][DOWN][0] = document.clyde_b0;
+	clydeSpriteLayers[BLUE][DOWN][1] = document.clyde_b0;
+	clydeSpriteLayers[BLUE][DOWN][2] = document.clyde_b1;
+	clydeSpriteLayers[BLUE][DOWN][3] = document.clyde_b1;
+	clydeSpriteLayers[WHITE] = new Array();
+	clydeSpriteLayers[WHITE][LEFT] = new Array();
+	clydeSpriteLayers[WHITE][LEFT][0] = document.clyde_b0;
+	clydeSpriteLayers[WHITE][LEFT][1] = document.clyde_w0;
+	clydeSpriteLayers[WHITE][LEFT][2] = document.clyde_b1;
+	clydeSpriteLayers[WHITE][LEFT][3] = document.clyde_w1;
+	clydeSpriteLayers[WHITE][RIGHT] = new Array();
+	clydeSpriteLayers[WHITE][RIGHT][0] = document.clyde_b0;
+	clydeSpriteLayers[WHITE][RIGHT][1] = document.clyde_w0;
+	clydeSpriteLayers[WHITE][RIGHT][2] = document.clyde_b1;
+	clydeSpriteLayers[WHITE][RIGHT][3] = document.clyde_w1;
+	clydeSpriteLayers[WHITE][UP] = new Array();
+	clydeSpriteLayers[WHITE][UP][0] = document.clyde_b0;
+	clydeSpriteLayers[WHITE][UP][1] = document.clyde_w0;
+	clydeSpriteLayers[WHITE][UP][2] = document.clyde_b1;
+	clydeSpriteLayers[WHITE][UP][3] = document.clyde_w1;
+	clydeSpriteLayers[WHITE][DOWN] = new Array();
+	clydeSpriteLayers[WHITE][DOWN][0] = document.clyde_b0;
+	clydeSpriteLayers[WHITE][DOWN][1] = document.clyde_w0;
+	clydeSpriteLayers[WHITE][DOWN][2] = document.clyde_b1;
+	clydeSpriteLayers[WHITE][DOWN][3] = document.clyde_w1;
+	clydeSpriteLayers[EYES] = new Array();
+	clydeSpriteLayers[EYES][LEFT] = new Array();
+	clydeSpriteLayers[EYES][LEFT][0] = document.clyde_el;
+	clydeSpriteLayers[EYES][LEFT][1] = document.clyde_el;
+	clydeSpriteLayers[EYES][LEFT][2] = document.clyde_el;
+	clydeSpriteLayers[EYES][LEFT][3] = document.clyde_el;
+	clydeSpriteLayers[EYES][RIGHT] = new Array();
+	clydeSpriteLayers[EYES][RIGHT][0] = document.clyde_er;
+	clydeSpriteLayers[EYES][RIGHT][1] = document.clyde_er;
+	clydeSpriteLayers[EYES][RIGHT][2] = document.clyde_er;
+	clydeSpriteLayers[EYES][RIGHT][3] = document.clyde_er;
+	clydeSpriteLayers[EYES][UP] = new Array();
+	clydeSpriteLayers[EYES][UP][0] = document.clyde_eu;
+	clydeSpriteLayers[EYES][UP][1] = document.clyde_eu;
+	clydeSpriteLayers[EYES][UP][2] = document.clyde_eu;
+	clydeSpriteLayers[EYES][UP][3] = document.clyde_eu;
+	clydeSpriteLayers[EYES][DOWN] = new Array();
+	clydeSpriteLayers[EYES][DOWN][0] = document.clyde_ed;
+	clydeSpriteLayers[EYES][DOWN][1] = document.clyde_ed;
+	clydeSpriteLayers[EYES][DOWN][2] = document.clyde_ed;
+	clydeSpriteLayers[EYES][DOWN][3] = document.clyde_ed;
+
+	fruitSpriteLayers = new Array();
+	fruitSpriteLayers[0] = document.cherry;
+	fruitSpriteLayers[1] = document.strawberry;
+	fruitSpriteLayers[2] = document.peach;
+	fruitSpriteLayers[3] = document.apple;
+	fruitSpriteLayers[4] = document.pineapple;
+	fruitSpriteLayers[5] = document.galaxian;
+	fruitSpriteLayers[6] = document.bell;
+	fruitSpriteLayers[7] = document.key;
+
+	openingCredits();
+}
+
+// ==== STATE 0: OPENING CREDITS ========
+function openingCredits() {
+	gameState = 0;
+
+	// OPENING CREDITS ANIMATION
+	document.oneUp.visibility = "show";
+	document.twoUp.visibility = "show";
+	document.high.visibility = "show";
+
+	document.oneUpScore.visibility = "show";
+	document.twoUpScore.visibility = "show";
+	document.highScore.visibility = "show";
+
+	document.oc00.visibility = "show";
+	document.oc01.visibility = "show";
+	document.oc02.visibility = "show";
+	document.oc03.visibility = "show";
+	document.oc04.visibility = "show";
+	document.oc05.visibility = "show";
+	document.oc06.visibility = "show";
+	document.oc07.visibility = "show";
+	document.oc08.visibility = "show";
+	document.oc09.visibility = "show";
+	document.oc10.visibility = "show";
+	document.oc11.visibility = "show";
+	document.oc12.visibility = "show";
+
+	document.credits.visibility = "show";
+	document.creditsScore.visibility = "show";
+}
+
+
+
+// ==== STATE 1: START PROMPT ========
+function startPrompt() {
+	gameState = 1;
+
+	// START PROMPT ANIMATION
+	document.oc00.visibility = "hide";
+	document.oc01.visibility = "hide";
+	document.oc02.visibility = "hide";
+	document.oc03.visibility = "hide";
+	document.oc04.visibility = "hide";
+	document.oc05.visibility = "hide";
+	document.oc06.visibility = "hide";
+	document.oc07.visibility = "hide";
+	document.oc08.visibility = "hide";
+	document.oc09.visibility = "hide";
+	document.oc10.visibility = "hide";
+	document.oc11.visibility = "hide";
+	document.oc12.visibility = "hide";
+
+	document.sp00.visibility = "show";
+	document.sp03.visibility = "show";
+	document.sp04.visibility = "show";
+	if (credits.value > 1){
+		document.sp01.visibility = "hide";
+		document.sp02.visibility = "show";
+	} else {
+		document.sp01.visibility = "show";
+	}
+
+	document.credits.visibility = "show";
+	document.creditsScore.visibility = "show";
+}
+
+
+
+// ==== STATE 2: GAME INTRO ========
+function gameIntro() {
+	gameState = 2;
+
+	up = 0;
+	drawPellets();
+
+	// GAME INTRO ANIMATION
+
+	document.sp00.visibility = "hide";
+	document.sp01.visibility = "hide";
+	document.sp02.visibility = "hide";
+	document.sp03.visibility = "hide";
+	document.sp04.visibility = "hide";
+
+	document.credits.visibility = "hide";
+	document.creditsScore.visibility = "hide";
+
+	document.boardLayer.visibility = "show";
+	document.player1.visibility = "show";
+	document.ready.visibility = "show";
+	document.pelletLayer.visibility = "show";
+	document.powerPelletLayer.visibility = "show";
+
+	document.lives.visibility = "show";
+	document.lives.clip.width = player[up].lives * 16;
+
+	document.level.visibility = "show"
+	if (player[up].level < 7) {
+		document.level.clip.left = 304 - (player[up].level + 1) * 16;
+		document.level.clip.right = 304;
+	} else {
+		if (player[up].level < 19) {
+			document.level.left = -96 + (player[up].level - 6) * 16;
+			document.level.clip.left = 192 - (player[up].level - 6) * 16;
+			document.level.clip.right = 304 - (player[up].level - 6) * 16;
+		} else {
+			document.level.left = 96;
+			document.level.clip.left = 0;
+			document.level.clip.right = 112;
+		}
+	}
+
+//	document.embeds["introSnd"].play(false);
+
+	setTimeout("birth();", 2143);
+}
+
+
+
+// ==== STATE 3: BIRTH ========
+function birth() {
+	gameState = 3;
+
+	document.player1.visibility = "hide";
+	document.player2.visibility = "hide";
+
+	player[up].lifeFlag = true;
+	player[up].lives--;
+
+	document.lives.clip.width = player[up].lives * 16;
+
+	if (player[up].level < 7) {
+		document.level.clip.left = 304 - (player[up].level + 1) * 16;
+		document.level.clip.right = 304;
+	} else {
+		if (player[up].level < 19) {
+			document.level.left = -96 + (player[up].level - 6) * 16;
+			document.level.clip.left = 192 - (player[up].level - 6) * 16;
+			document.level.clip.right = 304 - (player[up].level - 6) * 16;
+		} else {
+			document.level.left = 96;
+			document.level.clip.left = 0;
+			document.level.clip.right = 112;
+		}
+	}
+
+	// SET INITIAL SPRITES
+	animPhase = 0;
+	initSprites();
+
+	pacman.animateSprite();
+	pacman.drawSprite();
+	for (var i = 0; i < NUM_GHOSTS; i++) {
+		ghost[i].animateSprite();
+		ghost[i].drawSprite();
+	}
+	animPhase = -1;
+	document.ready.visibility = "show";
+
+	setTimeout("life();", 2143);
+}
+
+
+
+// ==== STATE 4: LIFE ========
+function life() {
+
+	gameState = 4;
+
+	document.ready.visibility = "hide";
+
+	// LIFE ANIMATION
+
+	if (player[up].lifeFlag) {
+
+		animPhase++;
+		if (animPhase == 4) {
+			animPhase = 0;
+			upLayers[up].visibility = "show";
+			for (var i = 0; i < document.powerPelletLayer.layers.length; i++) {
+				document.powerPelletLayer.layers[i].visibility = "show";
+			}
+		} else {
+			if (animPhase == 2) {
+				upLayers[up].visibility = "hide";
+				for (var i = 0; i < document.powerPelletLayer.layers.length; i++) {
+					document.powerPelletLayer.layers[i].visibility = "hide";
+				}
+			}
+		}
+		if (blueCount > 0) {
+			blueCount--;
+		} else {
+			if (whiteCount > 0) {
+				whiteCount--;
+			}
+		}
+
+		for (var i = 0; i < NUM_GHOSTS; i++) {
+			for (var j = 0; j < ghost[i].v; j++) {
+				ghost[i].intelligence();
+				ghost[i].makeMove(); // will move into intelligence for eyeSwitch
+				ghost[i].disposeSprite();
+				ghost[i].animateSprite()
+				ghost[i].drawSprite();
+			}
+		}
+		for (var i = 0; i < pacman.v; i++) {
+			pacman.intelligence();
+			pacman.makeMove(); // will move into intelligence
+			if (pacman.dir != 0) {
+				pacman.disposeSprite();
+				pacman.animateSprite();
+				pacman.drawSprite();
+			}
+		}
+
+		if ((player[up].pelletCount == pelletCount - 70) || (player[up].pelletCount == pelletCount - 170)) {
+			fruit[0].flag = true;
+			fruit[0].counter = FRUIT_COUNTER;
+			fruit[0].drawSprite();
+		} else {
+			if (fruit[0].flag) {
+				fruit[0].intelligence();
+			}
+		}
+
+		contact();
+		eat();
+
+		lifeID = setTimeout("life();", GAME_SPEED);
+	}else {
+		if (player[up].pelletCount > 0) {
+			clearTimeout(lifeID);
+			setTimeout("death();", 500);
+		} else {
+			player[up].lives++;
+			clearTimeout(lifeID);
+			setTimeout("boardCleared();", 500);
+		}
+	}
+}
+
+
+
+// ==== STATE 5: DEATH ========
+function death() {
+
+	gameState = 5;
+//	document.embeds["deathSnd"].play(false);
+
+	pacman.disposeSprite();
+	for (var i = 0; i < NUM_GHOSTS; i++) {
+		ghost[i].disposeSprite();
+	}
+	fruit[0].disposeSprite()
+
+	pacman.layers[DEATH][0].moveTo(pacman.x * DISTANCE + X_DRAW_OFFSET, pacman.y * DISTANCE + Y_DRAW_OFFSET);
+	setTimeout("pacman.layers[DEATH][0].moveTo(-500,0); pacman.layers[DEATH][1].moveTo(pacman.x * DISTANCE + X_DRAW_OFFSET, pacman.y * DISTANCE + Y_DRAW_OFFSET);", 137 * 1);
+	setTimeout("pacman.layers[DEATH][1].moveTo(-500,0); pacman.layers[DEATH][2].moveTo(pacman.x * DISTANCE + X_DRAW_OFFSET, pacman.y * DISTANCE + Y_DRAW_OFFSET);", 137 * 2);
+	setTimeout("pacman.layers[DEATH][2].moveTo(-500,0); pacman.layers[DEATH][3].moveTo(pacman.x * DISTANCE + X_DRAW_OFFSET, pacman.y * DISTANCE + Y_DRAW_OFFSET);", 137 * 3);
+	setTimeout("pacman.layers[DEATH][3].moveTo(-500,0); pacman.layers[DEATH][4].moveTo(pacman.x * DISTANCE + X_DRAW_OFFSET, pacman.y * DISTANCE + Y_DRAW_OFFSET);", 137 * 4);
+	setTimeout("pacman.layers[DEATH][4].moveTo(-500,0); pacman.layers[DEATH][5].moveTo(pacman.x * DISTANCE + X_DRAW_OFFSET, pacman.y * DISTANCE + Y_DRAW_OFFSET);", 137 * 5);
+	setTimeout("pacman.layers[DEATH][5].moveTo(-500,0); pacman.layers[DEATH][6].moveTo(pacman.x * DISTANCE + X_DRAW_OFFSET, pacman.y * DISTANCE + Y_DRAW_OFFSET);", 137 * 6);
+	setTimeout("pacman.layers[DEATH][6].moveTo(-500,0); pacman.layers[DEATH][7].moveTo(pacman.x * DISTANCE + X_DRAW_OFFSET, pacman.y * DISTANCE + Y_DRAW_OFFSET);", 137 * 7);
+	setTimeout("pacman.layers[DEATH][7].moveTo(-500,0); pacman.layers[DEATH][8].moveTo(pacman.x * DISTANCE + X_DRAW_OFFSET, pacman.y * DISTANCE + Y_DRAW_OFFSET);", 137 * 8);
+	setTimeout("pacman.layers[DEATH][8].moveTo(-500,0); pacman.layers[DEATH][9].moveTo(pacman.x * DISTANCE + X_DRAW_OFFSET, pacman.y * DISTANCE + Y_DRAW_OFFSET);", 137 * 9);
+	setTimeout("pacman.layers[DEATH][9].moveTo(-500,0); pacman.layers[DEATH][10].moveTo(pacman.x * DISTANCE + X_DRAW_OFFSET, pacman.y * DISTANCE + Y_DRAW_OFFSET);", 137 * 10);
+	setTimeout("pacman.layers[DEATH][10].moveTo(-500,0);", 137 * 11);
+
+	up++;
+	if (up > player.length - 1) {
+		up = 0;
+	}
+	if (player[up].lives > 0) {
+		setTimeout("birth();", 2150);
+	} else {
+		setTimeout("gameOver();", 2150);
+	}
+}
+
+
+
+// ==== STATE 6: BOARD CLEARED ========
+function boardCleared() {
+
+	gameState = 6;
+
+	for (var i = 0; i < NUM_GHOSTS; i++) {
+		ghost[i].disposeSprite();
+	}
+	fruit[0].disposeSprite()
+
+	document.pelletLayer.visibility = "hide";
+	document.powerPelletLayer.visibility = "hide";
+	setTimeout("document.boardFlashLayer.visibility = 'show';", 500);
+	setTimeout("document.boardFlashLayer.visibility = 'hide';", 1000);
+	setTimeout("document.boardFlashLayer.visibility = 'show';", 1500);
+	setTimeout("document.boardFlashLayer.visibility = 'hide';", 2000);
+	setTimeout("document.boardFlashLayer.visibility = 'show';", 2500);
+	setTimeout("document.boardFlashLayer.visibility = 'hide';", 3000);
+	setTimeout("document.boardFlashLayer.visibility = 'show';", 3500);
+	setTimeout("document.boardFlashLayer.visibility = 'hide'; pacman.disposeSprite()", 4000);
+
+	player[up].level++;
+	player[up].initPellets();
+	drawPellets();
+	setTimeout("document.pelletLayer.visibility = 'show'; document.powerPelletLayer.visibility = 'show'; birth();", 5000);
+}
+
+
+
+// ==== STATE 7: GAME OVER ========
+function gameOver() {
+
+	gameState = 7;
+	document.lives.visibility = "hide";
+	document.game_over.visibility = "show";
+	document.credits.visibility = "show";
+	credits.drawScore();
+	document.creditsScore.visibility = "show";
+
+	if (highScore.value > savedHighScore) {
+		saveHighScore(highScore.value);
+	}
+
+	if (credits.value > 0) {
+		sleep(2000);
+		document.game_over.visibility = "hide";
+		document.boardLayer.visibility = "hide";
+		document.pelletLayer.visibility = "hide";
+		for (var i = 0; i < document.powerPelletLayer.layers.length; i++) {
+			document.powerPelletLayer.layers[i].visibility = "hide";
+		}
+		document.powerPelletLayer.visibility = "hide";
+		startPrompt();
+	} else {
+		sleep(2000);
+		document.game_over.visibility = "hide";
+		document.boardLayer.visibility = "hide";
+		document.pelletLayer.visibility = "hide";
+		for (var i = 0; i < document.powerPelletLayer.layers.length; i++) {
+			document.powerPelletLayer.layers[i].visibility = "hide";
+		}
+		document.powerPelletLayer.visibility = "hide";
+		openingCredits();
+	}
+}
+
+
+document.onKeyDown = keyDown;
+// -->
+</SCRIPT>
+</HTML>
