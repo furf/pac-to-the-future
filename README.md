@@ -18,7 +18,7 @@ Recently, during a hard-drive purge, his code was rediscovered.
 
 In *Pac to the Future*, we will travel back in time to code review the early experiments of a web alchemist to answer these questions and many others.*
 
-*\* Not that many.*
+\* *Not that many.*
 
 ---
 
@@ -40,6 +40,6 @@ In *Pac to the Future*, we will travel back in time to code review the early exp
 
 ---
 
-*\* Requires Netscape Navigator 4*
+\* *Requires Netscape Navigator 4*
 
 ![Netscape Now!](https://www.accessfcu.org/onlineserv/HB/images/netscape.gif)
